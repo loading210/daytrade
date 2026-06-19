@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DayTrade Bot Dashboard</title>
+
+  <!-- Bootstrap 5.3 -->
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+    integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+    crossorigin="anonymous"
+  />
+  <!-- Font Awesome 6 -->
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
+    crossorigin="anonymous"
+    referrerpolicy="no-referrer"
+  />
+
+  <style>
+    /* ── Base ───────────────────────────────────────────────────────────── */
+    :root {
+      --bg-base:       #0d0f14;
+      --bg-card:       #14161e;
+      --bg-card-inner: #1a1c26;
+      --border-color:  #2a2d3e;
+      --accent:        #3b82f6;
+      --accent-hover:  #2563eb;
+      --text-muted:    #6b7280;
+      --green:         #2ecc71;
+      --green-hi:      #27ae60;
+      --red:           #e74c3c;
+      --amber:         #f39c12;
+      --log-bg:        #0a0c14;
+      --log-text:      #4ade80;
+      --font-mono:     "JetBrains Mono", "Fira Code", "Consolas", monospace;
+    }
+
+    html, body {
+      background: var(--bg-base);
+      color: #e2e8f0;
+      font-size: 14px;
+      min-height: 100vh;
+    }
+
+    /* ── Layout ─────────────────────────────────────────────────────────── */
+    .app-wrapper { max-width: 1400px; margin: 0 auto; padding: 1rem 1.25rem 3rem; }
+
+    /* ── Header ─────────────────────────────────────────────────────────── */
+    .dashboard-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: .75rem;
+      margin-bottom: 1.25rem;
+      flex-wrap: wrap;
+      gap: .5rem;
+    }
+    .dashboard-title {
+      font-size: 1.3rem;
+      font-weight: 700;
+      letter-spacing: .02em;
+      color: #f1f5f9;
+    }
+    .dashboard-title svg { color: var(--accent); margin-right: .4rem; }
+
+    /* ── Cards ──────────────────────────────────────────────────────────── */
+    .panel {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 1.1rem 1.25rem;
+    }
+    .panel-title {
+      font-size: .7rem;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: .9rem;
+    }
+
+    /* ── Action bar ─────────────────────────────────────────────────────── */
+    .action-bar {
+      display: flex;
+      align-items: center;
+      gap: .6rem;
+      flex-wrap: wrap;
+    }
+    .last-run-label { color: var(--text-muted); font-size: .78rem; margin-left: auto; }
+
+    /* ── Buttons ────────────────────────────────────────────────────────── */
+    .btn-run {
+      background: var(--accent);
+      border: none;
+      border-radius: 7px;
+      color: #fff;
+      font-weight: 600;
+      padding: .45rem 1.1rem;
+      font-size: .85rem;
+      cursor: pointer;
+      transition: background .15s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: .45rem;
+    }
+    .btn-run:hover:not(:disabled) { background: var(--accent-hover); }
+    .btn-run:disabled { opacity: .55; cursor: not-allowed; }
+
+    .btn-secondary-sm {
+      background: var(--bg-card-inner);
+      border: 1px solid var(--border-color);
+      border-radius: 7px;
+      color: #cbd5e1;
+      font-size: .82rem;
+      padding: .4rem .9rem;
+      cursor: pointer;
+      transition: border-color .15s;
+      display: inline-flex;
+      align-items: center;
+      gap: .35rem;
+    }
+    .btn-secondary-sm:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* ── Config form ────────────────────────────────────────────────────── */
+    .config-section-label {
+      font-size: .72rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      margin: .8rem 0 .45rem;
+      border-top: 1px solid var(--border-color);
+      padding-top: .6rem;
+    }
+    .config-section-label:first-of-type { border-top: none; margin-top: 0; }
+
+    .config-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: .45rem;
+      gap: .5rem;
+    }
+    .config-row label {
+      font-size: .82rem;
+      color: #94a3b8;
+      white-space: nowrap;
+    }
+    .config-input {
+      width: 85px;
+      background: var(--bg-card-inner);
+      border: 1px solid var(--border-color);
+      border-radius: 5px;
+      color: #e2e8f0;
+      font-size: .83rem;
+      padding: .28rem .5rem;
+      text-align: right;
+      outline: none;
+      transition: border-color .15s;
+    }
+    .config-input:focus { border-color: var(--accent); }
+    .config-unit { font-size: .72rem; color: var(--text-muted); min-width: 24px; }
+
+    /* ── Chart area ─────────────────────────────────────────────────────── */
+    .chart-wrap {
+      background: var(--bg-card-inner);
+      border: 1px dashed var(--border-color);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 240px;
+      overflow: hidden;
+    }
+    .chart-wrap img { width: 100%; border-radius: 8px; display: none; }
+    .chart-placeholder {
+      color: var(--text-muted);
+      font-size: .85rem;
+      text-align: center;
+      padding: 2rem;
+    }
+    .chart-placeholder i { font-size: 2rem; display: block; margin-bottom: .5rem; }
+
+    /* ── Performance table ──────────────────────────────────────────────── */
+    .perf-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: .8rem;
+    }
+    .perf-table th {
+      color: var(--text-muted);
+      font-weight: 600;
+      font-size: .68rem;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      border-bottom: 1px solid var(--border-color);
+      padding: .4rem .5rem;
+      text-align: right;
+    }
+    .perf-table th:first-child { text-align: left; }
+    .perf-table td {
+      padding: .38rem .5rem;
+      border-bottom: 1px solid rgba(42,45,62,.6);
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+    }
+    .perf-table td:first-child { text-align: left; font-weight: 600; }
+    .perf-table tbody tr:last-child td {
+      border-bottom: none;
+      font-weight: 700;
+      background: rgba(59,130,246,.06);
+    }
+    .perf-table tbody tr:hover td { background: rgba(255,255,255,.03); }
+
+    .text-positive { color: var(--green); }
+    .text-negative { color: var(--red); }
+    .text-amber    { color: var(--amber); }
+
+    /* ── Log panel ──────────────────────────────────────────────────────── */
+    .log-panel {
+      background: var(--log-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: .75rem 1rem;
+      font-family: var(--font-mono);
+      font-size: .75rem;
+      color: var(--log-text);
+      height: 220px;
+      overflow-y: auto;
+      line-height: 1.55;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+    .log-panel::-webkit-scrollbar { width: 5px; }
+    .log-panel::-webkit-scrollbar-track { background: var(--log-bg); }
+    .log-panel::-webkit-scrollbar-thumb { background: #2a2d3e; border-radius: 3px; }
+    .log-line-err  { color: var(--red); }
+    .log-line-warn { color: var(--amber); }
+    .log-line-ok   { color: var(--log-text); }
+
+    /* ── Trades table ───────────────────────────────────────────────────── */
+    .trades-table-wrap { overflow-x: auto; }
+    .trades-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: .78rem;
+      min-width: 620px;
+    }
+    .trades-table th {
+      color: var(--text-muted);
+      font-size: .67rem;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      font-weight: 600;
+      border-bottom: 1px solid var(--border-color);
+      padding: .4rem .6rem;
+    }
+    .trades-table td {
+      padding: .35rem .6rem;
+      border-bottom: 1px solid rgba(42,45,62,.5);
+      font-variant-numeric: tabular-nums;
+    }
+    .trades-table tbody tr:hover td { background: rgba(255,255,255,.025); }
+    .trades-table tbody tr:last-child td { border-bottom: none; }
+
+    .badge-long  { background: rgba(46,204,113,.15); color: var(--green); border-radius: 4px; padding: .1rem .45rem; font-size: .7rem; }
+    .badge-short { background: rgba(231,76,60,.15);  color: var(--red);   border-radius: 4px; padding: .1rem .45rem; font-size: .7rem; }
+
+    /* ── Toast ──────────────────────────────────────────────────────────── */
+    .toast-container { position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 9999; }
+    .toast-msg {
+      background: #1e293b;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: .65rem 1.1rem;
+      color: #e2e8f0;
+      font-size: .82rem;
+      box-shadow: 0 4px 20px rgba(0,0,0,.4);
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+      animation: slideUp .2s ease;
+    }
+    .toast-msg.success i { color: var(--green); }
+    .toast-msg.error   i { color: var(--red); }
+    @keyframes slideUp {
+      from { transform: translateY(12px); opacity: 0; }
+      to   { transform: translateY(0);    opacity: 1; }
+    }
+
+    /* ── Spinner ────────────────────────────────────────────────────────── */
+    .spin { animation: spin .8s linear infinite; display: inline-block; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Empty state ────────────────────────────────────────────────────── */
+    .empty-state {
+      text-align: center;
+      padding: 1.5rem;
+      color: var(--text-muted);
+      font-size: .82rem;
+    }
+    .empty-state i { font-size: 1.4rem; display: block; margin-bottom: .4rem; }
+
+    /* ── Responsive ─────────────────────────────────────────────────────── */
+    @media (max-width: 768px) {
+      .main-grid { flex-direction: column; }
+    }
+  </style>
+</head>
+
+<body>
+<div class="app-wrapper">
+
+  <!-- ── Header ─────────────────────────────────────────────────────────── -->
+  <header class="dashboard-header">
+    <div class="dashboard-title">
+      <i class="fa-solid fa-chart-line" style="color:var(--accent)"></i>
+      DayTrade Bot Dashboard
+    </div>
+    <div style="font-size:.75rem; color:var(--text-muted)">
+      <i class="fa-solid fa-circle" style="color:#22c55e; font-size:.5rem; vertical-align:middle"></i>
+      live
+    </div>
+  </header>
+
+  <!-- ── Action bar ──────────────────────────────────────────────────────── -->
+  <div class="action-bar mb-3">
+    <button class="btn-run" id="btnRun" onclick="runBacktest()">
+      <i class="fa-solid fa-play" id="runIcon"></i>
+      <span id="runLabel">Run Backtest</span>
+    </button>
+    <button class="btn-secondary-sm" onclick="loadResults()">
+      <i class="fa-solid fa-rotate-right"></i>
+      Refresh Results
+    </button>
+    <button class="btn-secondary-sm" onclick="loadTrades()">
+      <i class="fa-solid fa-table"></i>
+      Refresh Trades
+    </button>
+    <span class="last-run-label" id="lastRunLabel">Last run: —</span>
+  </div>
+
+  <!-- ── Main grid: Config | Results ────────────────────────────────────── -->
+  <div class="d-flex gap-3 mb-3 main-grid">
+
+    <!-- Config panel -->
+    <div class="panel" style="min-width:220px; max-width:260px; flex-shrink:0">
+      <div class="panel-title"><i class="fa-solid fa-sliders fa-fw" style="margin-right:.3rem"></i>Config</div>
+
+      <div class="config-section-label">Mean Reversion</div>
+
+      <div class="config-row">
+        <label for="cfg_MR_LOOKBACK">Lookback bars</label>
+        <input class="config-input" type="number" id="cfg_MR_LOOKBACK" min="5" max="200" step="1" />
+        <span class="config-unit">bars</span>
+      </div>
+
+      <div class="config-row">
+        <label for="cfg_SPY_threshold" title="MR_STD_THRESHOLD[SPY] is a dict — display only">SPY threshold</label>
+        <input class="config-input" type="number" id="cfg_SPY_threshold" step="0.1" placeholder="—" disabled title="Edit config.py directly" />
+        <span class="config-unit">&#x3c3;</span>
+      </div>
+
+      <div class="config-section-label">Momentum (BTC)</div>
+
+      <div class="config-row">
+        <label for="cfg_MB_LOOKBACK">Lookback bars</label>
+        <input class="config-input" type="number" id="cfg_MB_LOOKBACK" min="10" max="300" step="1" />
+        <span class="config-unit">bars</span>
+      </div>
+      <div class="config-row">
+        <label for="cfg_MB_VOLUME_MULTIPLIER">Volume mult</label>
+        <input class="config-input" type="number" id="cfg_MB_VOLUME_MULTIPLIER" min="1" max="10" step="0.1" />
+        <span class="config-unit">×</span>
+      </div>
+      <div class="config-row">
+        <label for="cfg_MB_ATR_TRAILING_STOP_MULT">Trail stop</label>
+        <input class="config-input" type="number" id="cfg_MB_ATR_TRAILING_STOP_MULT" min="1" max="20" step="0.5" />
+        <span class="config-unit">ATR</span>
+      </div>
+      <div class="config-row">
+        <label for="cfg_MB_COOLDOWN_BARS">Cooldown</label>
+        <input class="config-input" type="number" id="cfg_MB_COOLDOWN_BARS" min="0" max="50" step="1" />
+        <span class="config-unit">bars</span>
+      </div>
+
+      <div class="config-section-label">Trend Following</div>
+
+      <div class="config-row">
+        <label for="cfg_TF_FAST_EMA">Fast EMA</label>
+        <input class="config-input" type="number" id="cfg_TF_FAST_EMA" min="3" max="100" step="1" />
+        <span class="config-unit">bars</span>
+      </div>
+      <div class="config-row">
+        <label for="cfg_TF_SLOW_EMA">Slow EMA</label>
+        <input class="config-input" type="number" id="cfg_TF_SLOW_EMA" min="10" max="500" step="1" />
+        <span class="config-unit">bars</span>
+      </div>
+
+      <div class="config-section-label">Risk</div>
+
+      <div class="config-row">
+        <label for="cfg_RISK_PER_TRADE">Risk / trade</label>
+        <input class="config-input" type="number" id="cfg_RISK_PER_TRADE" min="0.001" max="0.05" step="0.001" />
+        <span class="config-unit">%eq</span>
+      </div>
+
+      <button class="btn-run mt-3 w-100" onclick="saveConfig()" style="background:#1e40af; justify-content:center">
+        <i class="fa-solid fa-floppy-disk"></i>
+        Save Config
+      </button>
+    </div>
+
+    <!-- Backtest results panel -->
+    <div class="panel flex-grow-1">
+      <div class="panel-title">
+        <i class="fa-solid fa-chart-area fa-fw" style="margin-right:.3rem"></i>Backtest Results
+      </div>
+
+      <!-- Chart -->
+      <div class="chart-wrap mb-3" id="chartWrap">
+        <div class="chart-placeholder" id="chartPlaceholder">
+          <i class="fa-solid fa-image-portrait"></i>
+          Chart will appear after the first backtest run.
+        </div>
+        <img id="chartImg" alt="Equity curve chart" />
+      </div>
+
+      <!-- Performance table -->
+      <div class="panel-title" style="margin-top:.5rem">
+        <i class="fa-solid fa-table-columns fa-fw" style="margin-right:.3rem"></i>Performance
+      </div>
+      <div id="perfTableWrap">
+        <div class="empty-state">
+          <i class="fa-solid fa-hourglass-start"></i>
+          No results yet — run the backtest to populate this table.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Live log ────────────────────────────────────────────────────────── -->
+  <div class="panel mb-3">
+    <div class="d-flex align-items-center justify-content-between mb-2">
+      <div class="panel-title mb-0">
+        <i class="fa-solid fa-terminal fa-fw" style="margin-right:.3rem"></i>Live Log
+      </div>
+      <button class="btn-secondary-sm" onclick="clearLog()">
+        <i class="fa-solid fa-eraser"></i>
+        Clear
+      </button>
+    </div>
+    <div class="log-panel" id="logPanel">
+      <span style="color:var(--text-muted)">Waiting for backtest to start…</span>
+    </div>
+  </div>
+
+  <!-- ── Recent trades ───────────────────────────────────────────────────── -->
+  <div class="panel">
+    <div class="panel-title">
+      <i class="fa-solid fa-receipt fa-fw" style="margin-right:.3rem"></i>Recent Trades
+      <span style="font-weight:400; font-size:.7rem; color:var(--text-muted)">(last 20 from trades.csv)</span>
+    </div>
+    <div class="trades-table-wrap" id="tradesWrap">
+      <div class="empty-state">
+        <i class="fa-solid fa-inbox"></i>
+        No trade data found (trades.csv missing or empty).
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Toast container -->
+<div class="toast-container" id="toastContainer"></div>
+
+
+<script>
+// ─────────────────────────────────────────────────────────────────────────────
+// Utilities
+// ─────────────────────────────────────────────────────────────────────────────
+
+function toast(msg, type = 'success') {
+  const c  = document.getElementById('toastContainer');
+  const el = document.createElement('div');
+  el.className = `toast-msg ${type}`;
+  el.innerHTML = `<i class="fa-solid ${type === 'success' ? 'fa-circle-check' : 'fa-circle-xmark'}"></i> ${msg}`;
+  c.appendChild(el);
+  setTimeout(() => el.remove(), 3500);
+}
+
+function sharpeColor(v) {
+  const n = parseFloat(v);
+  if (isNaN(n)) return '';
+  return n >= 1.0 ? '#27ae60' : n >= 0 ? '#f39c12' : '#e74c3c';
+}
+
+function returnColor(v) {
+  const n = parseFloat(v);
+  if (isNaN(n)) return '';
+  return n >= 0 ? '#2ecc71' : '#e74c3c';
+}
+
+function fmtPct(v) {
+  const n = parseFloat(v);
+  if (isNaN(n)) return '—';
+  return (n >= 0 ? '+' : '') + (n * 100).toFixed(2) + '%';
+}
+
+function fmtPctDirect(v) {
+  // value is already ×100 (e.g. 15.8 for 15.8%)
+  const n = parseFloat(v);
+  if (isNaN(n)) return '—';
+  return (n >= 0 ? '+' : '') + n.toFixed(1) + '%';
+}
+
+function fmtDollar(v) {
+  const n = parseFloat(v);
+  if (isNaN(n)) return '—';
+  return '$' + n.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+}
+
+function fmtNum(v, dp = 2) {
+  const n = parseFloat(v);
+  if (isNaN(n)) return '—';
+  return n.toFixed(dp);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Config
+// ─────────────────────────────────────────────────────────────────────────────
+
+async function loadConfig() {
+  try {
+    const r   = await fetch('/api/config');
+    const cfg = await r.json();
+    for (const [key, val] of Object.entries(cfg)) {
+      const el = document.getElementById('cfg_' + key);
+      if (el) el.value = val;
+    }
+  } catch (e) {
+    console.warn('loadConfig failed:', e);
+  }
+}
+
+async function saveConfig() {
+  const fields = [
+    'MR_LOOKBACK', 'MB_LOOKBACK', 'MB_VOLUME_MULTIPLIER',
+    'MB_ATR_TRAILING_STOP_MULT', 'MB_COOLDOWN_BARS',
+    'TF_FAST_EMA', 'TF_SLOW_EMA', 'RISK_PER_TRADE',
+  ];
+  const payload = {};
+  for (const f of fields) {
+    const el = document.getElementById('cfg_' + f);
+    if (el && el.value !== '') payload[f] = el.value;
+  }
+  try {
+    const r = await fetch('/api/config', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    if (r.ok) toast('Config saved successfully.', 'success');
+    else      toast('Save failed: ' + (await r.text()), 'error');
+  } catch (e) {
+    toast('Save failed: ' + e, 'error');
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Backtest results
+// ─────────────────────────────────────────────────────────────────────────────
+
+async function loadResults() {
+  // Chart (cache-bust with timestamp)
+  const img  = document.getElementById('chartImg');
+  const ph   = document.getElementById('chartPlaceholder');
+  const newSrc = `/api/backtest/chart?t=${Date.now()}`;
+
+  const testImg = new Image();
+  testImg.onload = () => {
+    img.src    = newSrc;
+    img.style.display = 'block';
+    ph.style.display  = 'none';
+  };
+  testImg.onerror = () => {
+    img.style.display = 'none';
+    ph.style.display  = 'block';
+  };
+  testImg.src = newSrc;
+
+  // Summary table
+  try {
+    const r    = await fetch('/api/backtest/results');
+    const data = await r.json();
+    renderPerfTable(data);
+  } catch (e) {
+    console.warn('loadResults failed:', e);
+  }
+}
+
+function renderPerfTable(data) {
+  const wrap = document.getElementById('perfTableWrap');
+  const order = ['SPY', 'QQQ', 'BTC/USD', 'GLD', 'USO', 'PORTFOLIO'];
+  const rows  = order.filter(k => data[k] !== undefined);
+
+  if (rows.length === 0) {
+    wrap.innerHTML = `
+      <div class="empty-state">
+        <i class="fa-solid fa-hourglass-start"></i>
+        No results yet — run the backtest to populate this table.
+      </div>`;
+    return;
+  }
+
+  const cols = [
+    { key: 'symbol',       label: 'Instrument' },
+    { key: 'sharpe',       label: 'Sharpe' },
+    { key: 'total_return', label: 'Return' },
+    { key: 'win_rate',     label: 'Win %' },
+    { key: 'total_trades', label: 'Trades' },
+    { key: 'max_drawdown', label: 'Max DD' },
+    { key: 'profit_factor',label: 'Prof. F' },
+    { key: 'final_equity', label: 'Final Eq.' },
+  ];
+
+  let thead = '<tr>' + cols.map(c =>
+    `<th>${c.label}</th>`
+  ).join('') + '</tr>';
+
+  let tbody = rows.map(sym => {
+    const m = data[sym] || {};
+    const sharpe = parseFloat(m.sharpe) || 0;
+    const ret    = parseFloat(m.total_return) || 0;
+    const isPort = sym === 'PORTFOLIO';
+
+    const rowStyle = isPort ? '' : '';
+    const cells = {
+      symbol:       `<span style="color:${ret >= 0 ? '#e2e8f0' : '#fca5a5'}">${sym}</span>`,
+      sharpe:       `<span style="color:${sharpeColor(sharpe)}">${fmtNum(sharpe)}</span>`,
+      total_return: `<span style="color:${returnColor(ret)}">${fmtPct(ret)}</span>`,
+      win_rate:     fmtPct(parseFloat(m.win_rate) || 0),
+      total_trades: m.total_trades ?? '—',
+      max_drawdown: `<span style="color:var(--red)">${fmtPct(parseFloat(m.max_drawdown) || 0)}</span>`,
+      profit_factor:(() => {
+        const pf = parseFloat(m.profit_factor);
+        if (isNaN(pf) || m.profit_factor === 'Infinity') return '<span style="color:var(--green)">∞</span>';
+        return fmtNum(pf);
+      })(),
+      final_equity: fmtDollar(m.final_equity),
+    };
+
+    return `<tr${isPort ? ' style="border-top:1px solid var(--border-color)"' : ''}>` +
+      cols.map(c => `<td>${cells[c.key]}</td>`).join('') +
+      '</tr>';
+  }).join('');
+
+  wrap.innerHTML = `
+    <table class="perf-table">
+      <thead>${thead}</thead>
+      <tbody>${tbody}</tbody>
+    </table>`;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Trades
+// ─────────────────────────────────────────────────────────────────────────────
+
+async function loadTrades() {
+  try {
+    const r      = await fetch('/api/trades');
+    const trades = await r.json();
+    renderTrades(trades);
+  } catch (e) {
+    console.warn('loadTrades failed:', e);
+  }
+}
+
+function renderTrades(trades) {
+  const wrap = document.getElementById('tradesWrap');
+  if (!trades || trades.length === 0) {
+    wrap.innerHTML = `
+      <div class="empty-state">
+        <i class="fa-solid fa-inbox"></i>
+        No trade data found (trades.csv missing or empty).
+      </div>`;
+    return;
+  }
+
+  const last20 = trades.slice(-20).reverse();
+  const keys   = Object.keys(last20[0]);
+
+  // Preferred column order (fall back to whatever CSV has)
+  const preferred = [
+    'timestamp', 'entry_time', 'exit_time', 'symbol',
+    'direction', 'entry_price', 'exit_price', 'position_size', 'pnl',
+  ];
+  const ordered = preferred.filter(k => keys.includes(k))
+    .concat(keys.filter(k => !preferred.includes(k)));
+
+  const thead = '<tr>' + ordered.map(k =>
+    `<th>${k.replace(/_/g,' ').replace(/\b\w/g, l=>l.toUpperCase())}</th>`
+  ).join('') + '</tr>';
+
+  const tbody = last20.map(row => {
+    const cells = ordered.map(k => {
+      const v = row[k] ?? '—';
+      if (k === 'direction') {
+        const cls = String(v).toLowerCase() === 'long' ? 'badge-long' : 'badge-short';
+        return `<td><span class="${cls}">${v}</span></td>`;
+      }
+      if (k === 'pnl') {
+        const n = parseFloat(v);
+        const cls = isNaN(n) ? '' : n >= 0 ? 'text-positive' : 'text-negative';
+        return `<td class="${cls}">${isNaN(n) ? v : (n >= 0 ? '+' : '') + fmtDollar(n)}</td>`;
+      }
+      return `<td>${v}</td>`;
+    }).join('');
+    return `<tr>${cells}</tr>`;
+  }).join('');
+
+  wrap.innerHTML = `
+    <div class="trades-table-wrap">
+      <table class="trades-table">
+        <thead>${thead}</thead>
+        <tbody>${tbody}</tbody>
+      </table>
+    </div>`;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Backtest run (SSE)
+// ─────────────────────────────────────────────────────────────────────────────
+
+let _backtestStartTime = null;
+
+function runBacktest() {
+  const btn   = document.getElementById('btnRun');
+  const icon  = document.getElementById('runIcon');
+  const label = document.getElementById('runLabel');
+  const log   = document.getElementById('logPanel');
+
+  btn.disabled = true;
+  icon.className  = 'fa-solid fa-circle-notch spin';
+  label.textContent = 'Running…';
+  log.innerHTML = '';
+  _backtestStartTime = Date.now();
+
+  // SSE — POST triggers the subprocess; browser reads the stream.
+  // We open an XHR manually because EventSource only supports GET.
+  const xhr = new XMLHttpRequest();
+  xhr.open('POST', '/api/backtest/run', true);
+  xhr.setRequestHeader('Accept', 'text/event-stream');
+
+  let buffer = '';
+
+  xhr.onprogress = () => {
+    const newText = xhr.responseText.slice(buffer.length);
+    buffer = xhr.responseText;
+
+    const lines = newText.split('\n');
+    for (const line of lines) {
+      if (!line.startsWith('data: ')) continue;
+      try {
+        const evt = JSON.parse(line.slice(6));
+        if (evt.log !== undefined) appendLog(log, evt.log);
+        if (evt.done) {
+          finishRun(btn, icon, label, evt.returncode);
+        }
+      } catch { /* partial JSON — skip */ }
+    }
+  };
+
+  xhr.onload = xhr.onerror = () => {
+    if (btn.disabled) finishRun(btn, icon, label, null);
+  };
+
+  xhr.send();
+}
+
+function appendLog(panel, text) {
+  const line = document.createElement('div');
+  const lower = text.toLowerCase();
+  if (lower.includes('[error]') || lower.includes('traceback') || lower.includes('error')) {
+    line.className = 'log-line-err';
+  } else if (lower.includes('[warning]') || lower.includes('warn')) {
+    line.className = 'log-line-warn';
+  } else {
+    line.className = 'log-line-ok';
+  }
+  line.textContent = text;
+  panel.appendChild(line);
+  panel.scrollTop = panel.scrollHeight;
+}
+
+function finishRun(btn, icon, label, returncode) {
+  btn.disabled      = false;
+  icon.className    = 'fa-solid fa-play';
+  label.textContent = 'Run Backtest';
+
+  const elapsed = _backtestStartTime
+    ? Math.round((Date.now() - _backtestStartTime) / 1000)
+    : null;
+  if (elapsed !== null) {
+    document.getElementById('lastRunLabel').textContent =
+      `Last run: ${elapsed}s ago`;
+  }
+
+  if (returncode === 0 || returncode === null) {
+    toast('Backtest complete. Refreshing results…', 'success');
+    loadResults();
+    loadTrades();
+  } else {
+    toast(`Backtest exited with code ${returncode}.`, 'error');
+  }
+}
+
+function clearLog() {
+  document.getElementById('logPanel').innerHTML =
+    '<span style="color:var(--text-muted)">Log cleared.</span>';
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Init
+// ─────────────────────────────────────────────────────────────────────────────
+
+document.addEventListener('DOMContentLoaded', () => {
+  loadConfig();
+  loadResults();
+  loadTrades();
+});
+</script>
+
+<!-- Bootstrap JS (for future use) -->
+<script
+  src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+  integrity="sha384-YvpcrYf0tY3lHB60NNkmXc4s9bIOgUxi8T/jzmLXE6LUViQAAT3AwxKJxsA5a1ZH"
+  crossorigin="anonymous"
+></script>
+</body>
+</html>

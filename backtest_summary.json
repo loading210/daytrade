@@ -1,0 +1,68 @@
+{
+  "SPY": {
+    "total_trades": 3,
+    "win_rate": 1.0,
+    "avg_win": 382.46163333336796,
+    "avg_loss": 0.0,
+    "profit_factor": Infinity,
+    "max_drawdown": -0.011932292046518907,
+    "sharpe": 2.493759980596861,
+    "total_return": 0.011473849000001065,
+    "final_equity": 101147.3849000001
+  },
+  "QQQ": {
+    "total_trades": 28,
+    "win_rate": 0.6428571428571429,
+    "avg_win": 877.0407190377318,
+    "avg_loss": -1098.7993024122607,
+    "profit_factor": 1.4367257885968443,
+    "max_drawdown": -0.03426984170992734,
+    "sharpe": 1.3465816932317478,
+    "total_return": 0.047987399185565736,
+    "final_equity": 104798.73991855657
+  },
+  "BTC/USD": {
+    "total_trades": 22,
+    "win_rate": 0.2727272727272727,
+    "avg_win": 3336.0784404271258,
+    "avg_loss": -967.8488414304411,
+    "profit_factor": 1.292587604187449,
+    "max_drawdown": -0.14076376105901295,
+    "sharpe": 0.5207307482797947,
+    "total_return": 0.04530889179675694,
+    "final_equity": 104530.8891796757
+  },
+  "GLD": {
+    "total_trades": 3,
+    "win_rate": 0.6666666666666666,
+    "avg_win": 1684.1641631250077,
+    "avg_loss": -764.5977894642836,
+    "profit_factor": 4.405359749483502,
+    "max_drawdown": -0.02992598474470766,
+    "sharpe": 1.0977255758298659,
+    "total_return": 0.026037305367857335,
+    "final_equity": 102603.73053678573
+  },
+  "USO": {
+    "total_trades": 4,
+    "win_rate": 0.5,
+    "avg_win": 8713.595971964289,
+    "avg_loss": -771.8759356214252,
+    "profit_factor": 11.288855591733286,
+    "max_drawdown": -0.06655914245408341,
+    "sharpe": 2.028042440152163,
+    "total_return": 0.15883440072685728,
+    "final_equity": 115883.44007268573
+  },
+  "PORTFOLIO": {
+    "total_trades": 60,
+    "win_rate": 0.5166666666666667,
+    "avg_win": 2065.0934890734734,
+    "avg_loss": -1105.0780391038516,
+    "profit_factor": 1.9976089032493887,
+    "max_drawdown": -0.11325983310812718,
+    "sharpe": 2.0273725712575663,
+    "total_return": 0.3200919276327634,
+    "final_equity": 132009.19276327634
+  }
+}
